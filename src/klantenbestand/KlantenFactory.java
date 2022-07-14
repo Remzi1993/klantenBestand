@@ -4,8 +4,8 @@ import klantenbestand.models.Klant;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class KlantenFactory {
@@ -13,6 +13,7 @@ public class KlantenFactory {
     private ArrayList<String> namenLijst;
     private ArrayList<Klant> klantenLijst;
     private File file;
+    private static final String UTF8_BOM = "\uFEFF";
 
     public KlantenFactory() {
         plaatsenLijst = new ArrayList<>();
@@ -38,16 +39,18 @@ public class KlantenFactory {
     }
 
     public void vulNamenLijst() {
-        // TODO: Lees het bestand "resources/NamenlijstGroot.csv" en zet elke regel (<tussenvoegsel>,<achternaam>)
-        // in de ArrayList namenLijst.
-
         file = new File("resources/NamenlijstGroot.csv");
 
         try (
-                Scanner scanner = new Scanner(file);
+                Scanner scanner = new Scanner(file, StandardCharsets.UTF_8);
         ) {
             while (scanner.hasNext()) {
-                String line = scanner.nextLine();
+                String line = scanner.nextLine().strip();
+
+                if (line.startsWith(UTF8_BOM)) {
+                    line = line.substring(1);
+                }
+
                 String[] values = line.split(",");
                 String namePrefix = values[0];
                 String surname = values[1];
@@ -76,6 +79,8 @@ public class KlantenFactory {
     public void maakKlantenBestand() {
         // TODO: Schrijf alle klanten in de ArrayList klantenLijst naar het bestand "resources/Klanten.txt"
         // Tip: Gebruik de klantToFileString-methode van het klant-object!
+
+
     }
 
     public void leesKlantenBestand() {
