@@ -10,6 +10,12 @@ public class Klant {
         this.idKlant = idKlant;
     }
 
+    public Klant(int idKlant, String klantnaam, String woonplaats) {
+        this.idKlant = idKlant;
+        this.klantnaam = klantnaam;
+        this.woonplaats = woonplaats;
+    }
+
     public Klant(int idKlant, String tussenvoegsel, String klantnaam, String woonplaats) {
         this.idKlant = idKlant;
         this.tussenvoegsel = tussenvoegsel;
@@ -46,6 +52,10 @@ public class Klant {
     }
 
     public String klantToFileString() {
+        if (tussenvoegsel == null) {
+            return String.format("%d,%s,%s", idKlant, klantnaam, woonplaats);
+        }
+
         return String.format("%d,%s,%s,%s", idKlant, tussenvoegsel, klantnaam, woonplaats);
     }
 

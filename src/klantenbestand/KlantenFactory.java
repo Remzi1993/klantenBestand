@@ -1,9 +1,9 @@
 package klantenbestand;
 
 import klantenbestand.models.Klant;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -39,7 +39,7 @@ public class KlantenFactory {
     }
 
     public void vulNamenLijst() {
-        file = new File("resources/NamenlijstGroot.csv");
+        file = new File("resources/Namenlijst-groot.csv");
 
         try (
                 Scanner scanner = new Scanner(file, StandardCharsets.UTF_8);
@@ -69,10 +69,18 @@ public class KlantenFactory {
 
         for (int i = 0; i < lijstGrootte; i++) {
             String[] naamSplit = kiesRandomNaam().split(",");
-            String tussenvoegsel = naamSplit[0];
-            String achternaam = naamSplit[1];
-            Klant nieuweKlant = new Klant(idKlant++, tussenvoegsel, achternaam, kiesRandomPlaats());
-            klantenLijst.add(nieuweKlant);
+            String achternaam;
+
+            if (naamSplit.length > 1) {
+                String tussenvoegsel = naamSplit[0];
+                achternaam = naamSplit[1];
+                Klant nieuweKlant = new Klant(idKlant++, tussenvoegsel, achternaam, kiesRandomPlaats());
+                klantenLijst.add(nieuweKlant);
+            } else {
+                achternaam = naamSplit[0];
+                Klant nieuweKlant = new Klant(idKlant++, achternaam, kiesRandomPlaats());
+                klantenLijst.add(nieuweKlant);
+            }
         }
     }
 
@@ -80,11 +88,59 @@ public class KlantenFactory {
         // TODO: Schrijf alle klanten in de ArrayList klantenLijst naar het bestand "resources/Klanten.txt"
         // Tip: Gebruik de klantToFileString-methode van het klant-object!
 
+        file = new File("resources/Klantenlijst.txt");
 
+        try (
+                PrintWriter writer = new PrintWriter(file)
+        ) {
+            for (Klant klant : klantenLijst) {
+                writer.println(klant.klantToFileString());
+            }
+
+        } catch (FileNotFoundException e) {
+            System.err.println("Couldn't save data file!");
+        } catch (Exception e) {
+            System.err.println("Something went wrong");
+            e.printStackTrace();
+        }
     }
 
     public void leesKlantenBestand() {
         // TODO: Lees het bestand "resources/Klanten.txt" en zet elke regel in de ArrayList klantenLijst.
+
+        file = new File("resources/Klantenlijst.txt");
+
+        try (
+                Scanner scanner = new Scanner(file);
+        ) {
+            while (scanner.hasNext()) {
+                String line = scanner.nextLine().strip();
+
+                if (line.startsWith(UTF8_BOM)) {
+                    line = line.substring(1);
+                }
+
+                String[] values = line.split(",");
+                int idKlant = Integer.parseInt(values[0]);
+                String achternaam;
+
+                if (values.length <= 3) {
+                    achternaam = values[1];
+                    Klant nieuweKlant = new Klant(idKlant, achternaam, kiesRandomPlaats());
+                    klantenLijst.add(nieuweKlant);
+                } else {
+                    String tussenvoegsel = values[1];
+                    achternaam = values[2];
+                    Klant nieuweKlant = new Klant(idKlant, tussenvoegsel, achternaam, kiesRandomPlaats());
+                    klantenLijst.add(nieuweKlant);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Data file doesn't exist!");
+        } catch (Exception e) {
+            System.err.println("Something went wrong");
+            e.printStackTrace();
+        }
     }
 
     public void printNamenLijst() {
