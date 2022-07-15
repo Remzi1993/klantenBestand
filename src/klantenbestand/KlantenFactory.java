@@ -25,10 +25,16 @@ public class KlantenFactory {
         file = new File("resources/Plaatsnamenlijst.txt");
 
         try (
-                Scanner scanner = new Scanner(file);
+                Scanner scanner = new Scanner(file, StandardCharsets.UTF_8);
         ) {
             while (scanner.hasNext()) {
-                plaatsenLijst.add(scanner.nextLine());
+                String line = scanner.nextLine().strip();
+
+                if (line.startsWith(UTF8_BOM)) {
+                    line = line.substring(1);
+                }
+
+                plaatsenLijst.add(line);
             }
         } catch (FileNotFoundException e) {
             System.err.println("Data file doesn't exist!");
@@ -39,7 +45,7 @@ public class KlantenFactory {
     }
 
     public void vulNamenLijst() {
-        file = new File("resources/Namenlijst-groot.csv");
+        file = new File("resources/Namenlijst.csv");
 
         try (
                 Scanner scanner = new Scanner(file, StandardCharsets.UTF_8);
